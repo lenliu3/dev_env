@@ -8,7 +8,7 @@ return {
           signs = { add = '▎', change = '▎', delete = '▎' },
         },
       })
-      vim.keymap.set('n', '<leader>go', function() require('mini.diff').toggle_overlay() end, { desc = 'Toggle diff overlay' })
+      vim.keymap.set('v', 'go', function() require('mini.diff').toggle_overlay() end, { desc = 'Toggle diff overlay' })
     end,
   },
   {
