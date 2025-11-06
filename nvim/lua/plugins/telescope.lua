@@ -11,6 +11,9 @@ return {
       local builtin = require("telescope.builtin")
 
       telescope.setup({
+        defaults = {
+          file_ignore_patterns = { "package%-lock%.json" },
+        },
         extensions = {
           fzf = {
             fuzzy = true,
