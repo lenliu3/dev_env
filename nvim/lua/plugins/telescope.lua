@@ -35,6 +35,9 @@ return {
       vim.keymap.set("n", "<leader>fc", builtin.commands, { desc = "Find commands" })
 
       -- LSP Integration
+      vim.keymap.set("n", "gd", builtin.lsp_definitions, { desc = "LSP definitions" })
+      vim.keymap.set("n", "gr", builtin.lsp_references, { desc = "LSP references" })
+      vim.keymap.set("n", "gi", builtin.lsp_implementations, { desc = "LSP implementations" })
       vim.keymap.set("n", "<leader>fr", builtin.lsp_references, { desc = "LSP references" })
       vim.keymap.set("n", "<leader>fs", builtin.lsp_document_symbols, { desc = "LSP symbols" })
       vim.keymap.set("n", "<leader>fd", builtin.diagnostics, { desc = "LSP diagnostics" })
