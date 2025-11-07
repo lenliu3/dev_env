@@ -10,6 +10,12 @@ return {
     dependencies = { "williamboman/mason.nvim", "neovim/nvim-lspconfig", "hrsh7th/cmp-nvim-lsp" },
     config = function()
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
+      vim.api.nvim_create_autocmd("CursorMoved", {
+        callback = function()
+          vim.diagnostic.open_float(nil, { focusable = false })
+        end,
+      })
       
       vim.api.nvim_create_autocmd("LspAttach", {
         callback = function(args)
