@@ -4,6 +4,87 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TS="$(date +%Y%m%d-%H%M%S)"
 
+# ---------- dependency check ----------
+case "$(uname -s)" in
+  Darwin)                 OS=mac ;;
+  Linux)
+    if grep -qi microsoft /proc/version 2>/dev/null; then OS=wsl; else OS=linux; fi ;;
+  *)                      OS=other ;;
+esac
+
+hint() {
+  # hint <binary> — prints an install suggestion for the current OS
+  case "$OS:$1" in
+    mac:*)            echo "    brew install $1" ;;
+    linux:rg)         echo "    apt install ripgrep   # or: pacman -S ripgrep" ;;
+    linux:fd)         echo "    apt install fd-find   # or: pacman -S fd" ;;
+    linux:cc)         echo "    apt install build-essential" ;;
+    linux:make)       echo "    apt install build-essential" ;;
+    linux:npm|linux:node) echo "    apt install nodejs npm" ;;
+    linux:xclip)      echo "    apt install xclip     # or wl-clipboard on Wayland" ;;
+    linux:java)       echo "    apt install default-jdk" ;;
+    linux:*)          echo "    apt install $1        # or your distro's equivalent" ;;
+    wsl:*)            echo "    (WSL) apt install $1" ;;
+    *)                echo "    install $1 using your package manager" ;;
+  esac
+}
+
+MISSING_REQUIRED=()
+MISSING_RECOMMENDED=()
+
+need() {
+  local bin="$1" tier="$2"
+  if ! command -v "$bin" >/dev/null 2>&1; then
+    if [ "$tier" = required ]; then
+      MISSING_REQUIRED+=("$bin")
+    else
+      MISSING_RECOMMENDED+=("$bin")
+    fi
+  fi
+}
+
+need nvim  required
+need git   required
+need tmux  required
+need rg    recommended   # telescope live_grep
+need fd    recommended   # telescope find_files
+need make  recommended   # telescope-fzf-native build
+need cc    recommended   # telescope-fzf-native build
+need npm   recommended   # markdown-preview build
+need unzip recommended   # mason
+need curl  recommended   # mason
+need java  recommended   # jdtls LSP server
+
+# Linux clipboard bridge for tmux-yank
+if [ "$OS" = linux ] && ! command -v xclip >/dev/null 2>&1 \
+                     && ! command -v xsel >/dev/null 2>&1 \
+                     && ! command -v wl-copy >/dev/null 2>&1; then
+  MISSING_RECOMMENDED+=("xclip")
+fi
+
+if [ ${#MISSING_REQUIRED[@]} -gt 0 ]; then
+  echo "ERROR: missing required dependencies:"
+  for b in "${MISSING_REQUIRED[@]}"; do
+    echo "  - $b"
+    hint "$b"
+  done
+  exit 1
+fi
+
+if [ ${#MISSING_RECOMMENDED[@]} -gt 0 ]; then
+  echo "warn: missing recommended dependencies (config will still load):"
+  for b in "${MISSING_RECOMMENDED[@]}"; do
+    echo "  - $b"
+    hint "$b"
+  done
+  echo
+fi
+
+echo "note: install a Nerd Font for nvim-web-devicons glyphs"
+echo "      https://www.nerdfonts.com/font-downloads"
+echo
+
+# ---------- symlinks ----------
 link() {
   local src="$1" dst="$2"
   if [ -L "$dst" ]; then
