@@ -1,0 +1,6 @@
+# Work-only / private plugins (never push to public remote)
+nvim/lua/plugins-work/
+
+# Backups left by install.sh
+*.bak
+*.bak-*
