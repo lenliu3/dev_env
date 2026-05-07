@@ -45,12 +45,26 @@ return {
   },
   {
     "nvim-treesitter/nvim-treesitter",
+    branch = "main",
+    lazy = false,
     build = ":TSUpdate",
     config = function()
-      require("nvim-treesitter.configs").setup({
-        ensure_installed = { "lua", "python", "java", "typescript", "javascript", "tsx", "kotlin", "markdown", "markdown_inline" },
-        auto_install = true,
-        highlight = { enable = true },
+      local parsers = {
+        "lua", "python", "java", "typescript", "javascript",
+        "tsx", "kotlin", "markdown", "markdown_inline",
+      }
+
+      require("nvim-treesitter").setup({
+        install_dir = vim.fn.stdpath("data") .. "/site",
+      })
+      require("nvim-treesitter").install(parsers)
+
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = {
+          "lua", "python", "java", "typescript", "javascript",
+          "typescriptreact", "kotlin", "markdown",
+        },
+        callback = function() vim.treesitter.start() end,
       })
     end,
   },
