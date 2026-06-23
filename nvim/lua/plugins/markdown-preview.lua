@@ -2,7 +2,15 @@ return {
   "iamcco/markdown-preview.nvim",
   cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
   ft = { "markdown" },
-  build = "cd app && npm install",
+  -- Built-in installer (prebuilt binary into gitignored app/bin/) instead of
+  -- `npm install`, which rewrites the tracked app/yarn.lock and makes
+  -- lazy.nvim refuse to update the plugin on every launch.
+  build = function()
+    -- lazy.load first: the plugin is lazy-loaded, so its autoload/ isn't on
+    -- runtimepath when build runs.
+    require("lazy").load({ plugins = { "markdown-preview.nvim" } })
+    vim.fn["mkdp#util#install"]()
+  end,
   init = function()
     -- Always echo the URL so it can be copied into a browser. Printing
     -- the URL with "localhost" (not the remote hostname) means a tunneled
