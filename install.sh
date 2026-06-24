@@ -15,6 +15,7 @@ esac
 hint() {
   # hint <binary> — prints an install suggestion for the current OS
   case "$OS:$1" in
+    *:tree-sitter)    echo "    brew install tree-sitter-cli   # or: cargo install tree-sitter-cli (NOT npm; needs 0.26.1+)" ;;
     mac:*)            echo "    brew install $1" ;;
     linux:rg)         echo "    apt install ripgrep   # or: pacman -S ripgrep" ;;
     linux:fd)         echo "    apt install fd-find   # or: pacman -S fd" ;;
@@ -49,7 +50,8 @@ need tmux  required
 need rg    recommended   # telescope live_grep
 need fd    recommended   # telescope find_files
 need make  recommended   # telescope-fzf-native build
-need cc    recommended   # telescope-fzf-native build
+need cc    recommended   # telescope-fzf-native + treesitter parser compile
+need tree-sitter recommended   # nvim-treesitter (main) parser install/compile
 need npm   recommended   # markdown-preview build
 need unzip recommended   # mason
 need curl  recommended   # mason
