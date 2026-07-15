@@ -7,6 +7,7 @@ return {
     require("everforest").setup({
       background = "soft",
     })
-    require("everforest").load()
+    -- Configured but not loaded at startup; kanagawa-wave is the active theme.
+    -- Switch back any time with `:colorscheme everforest`.
   end,
 }
