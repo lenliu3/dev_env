@@ -31,8 +31,18 @@ diff` shows your actual config drift.
 - `npm` — `markdown-preview.nvim` post-install
 - `unzip`, `curl` — mason fetches LSP servers
 - JDK 17+ — `jdtls` Java LSP
-- Linux clipboard: `xclip` / `xsel` / `wl-clipboard` (tmux-yank clipboard bridge)
 - A [Nerd Font](https://www.nerdfonts.com/font-downloads) for `nvim-web-devicons` glyphs
+
+Clipboard works without a helper tool on a headless remote host: tmux sets
+`set-clipboard on` and ships the copy to your terminal over OSC 52. When a local
+clipboard tool (`pbcopy`, `wl-copy`, `xsel`, `xclip`, `clip.exe`) is present,
+tmux.conf also pipes through it, which covers terminals that discard OSC 52.
+
+OSC 52 support is per-terminal: Ghostty, kitty, WezTerm, and Alacritty have it;
+macOS Terminal.app does not; iTerm2 needs Preferences > General > Selection >
+"Applications in terminal may access clipboard". Test it by copying and pasting
+locally -- `#{client_termfeatures}` is inferred from `$TERM`, not probed, so it
+claims `clipboard` for any `xterm*` even when the terminal drops the escape.
 
 ## Install (Windows)
 

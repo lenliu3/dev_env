@@ -22,7 +22,6 @@ hint() {
     linux:cc)         echo "    apt install build-essential" ;;
     linux:make)       echo "    apt install build-essential" ;;
     linux:npm|linux:node) echo "    apt install nodejs npm" ;;
-    linux:xclip)      echo "    apt install xclip     # or wl-clipboard on Wayland" ;;
     linux:java)       echo "    apt install default-jdk" ;;
     linux:*)          echo "    apt install $1        # or your distro's equivalent" ;;
     wsl:*)            echo "    (WSL) apt install $1" ;;
@@ -56,13 +55,6 @@ need npm   recommended   # markdown-preview build
 need unzip recommended   # mason
 need curl  recommended   # mason
 need java  recommended   # jdtls LSP server
-
-# Linux clipboard bridge for tmux-yank
-if [ "$OS" = linux ] && ! command -v xclip >/dev/null 2>&1 \
-                     && ! command -v xsel >/dev/null 2>&1 \
-                     && ! command -v wl-copy >/dev/null 2>&1; then
-  MISSING_RECOMMENDED+=("xclip")
-fi
 
 if [ ${#MISSING_REQUIRED[@]} -gt 0 ]; then
   echo "ERROR: missing required dependencies:"
