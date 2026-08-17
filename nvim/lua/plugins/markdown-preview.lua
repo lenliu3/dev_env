@@ -2,14 +2,27 @@ return {
   "iamcco/markdown-preview.nvim",
   cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
   ft = { "markdown" },
-  -- Built-in installer (prebuilt binary into gitignored app/bin/) instead of
-  -- `npm install`, which rewrites the tracked app/yarn.lock and makes
-  -- lazy.nvim refuse to update the plugin on every launch.
-  build = function()
-    -- lazy.load first: the plugin is lazy-loaded, so its autoload/ isn't on
-    -- runtimepath when build runs.
-    require("lazy").load({ plugins = { "markdown-preview.nvim" } })
-    vim.fn["mkdp#util#install"]()
+  build = function(plugin)
+    local app = plugin.dir .. "/app"
+    -- The prebuilt server binary from the built-in installer segfaults on
+    -- glibc 2.34, and rpc#start_server() picks it over node whenever it is
+    -- executable. Clear +x so startup falls through to the node path.
+    for _, bin in ipairs(vim.fn.glob(app .. "/bin/markdown-preview-*", false, true)) do
+      vim.fn.setfperm(bin, "rw-r--r--")
+    end
+    -- Versions pinned to the tracked app/yarn.lock: npm resolves
+    -- @chemzqm/neovim ^5.7.9 up to 5.9.x, which swapped msgpack-lite for
+    -- @chemzqm/msgpack-lite and breaks the shipped lib/app bundle.
+    -- --no-save/--no-package-lock avoid dirtying the plugin repo, which would
+    -- make lazy.nvim refuse to update it.
+    vim.fn.system({
+      "npm", "install", "--prefix", app,
+      "--no-save", "--no-package-lock", "--no-audit", "--no-fund",
+      "@chemzqm/neovim@5.7.9", "log4js@6.4.0", "socket.io@2.4.0", "tslib@1.9.3",
+    })
+    if vim.v.shell_error ~= 0 then
+      error("markdown-preview: npm install failed")
+    end
   end,
   init = function()
     -- Always echo the URL so it can be copied into a browser. Printing
