@@ -6,26 +6,37 @@ TS="$(date +%Y%m%d-%H%M%S)"
 
 # ---------- dependency check ----------
 case "$(uname -s)" in
-  Darwin)                 OS=mac ;;
+  Darwin) OS=mac ;;
   Linux)
-    if grep -qi microsoft /proc/version 2>/dev/null; then OS=wsl; else OS=linux; fi ;;
-  *)                      OS=other ;;
+    if grep -qi microsoft /proc/version 2>/dev/null; then
+      OS=wsl
+    elif [ -f /etc/arch-release ] || command -v pacman >/dev/null 2>&1; then
+      OS=arch
+    else
+      OS=linux
+    fi
+    ;;
+  *) OS=other ;;
 esac
 
 hint() {
   # hint <binary> — prints an install suggestion for the current OS
   case "$OS:$1" in
-    *:tree-sitter)    echo "    brew install tree-sitter-cli   # or: cargo install tree-sitter-cli (NOT npm; needs 0.26.1+)" ;;
-    mac:*)            echo "    brew install $1" ;;
-    linux:rg)         echo "    apt install ripgrep   # or: pacman -S ripgrep" ;;
-    linux:fd)         echo "    apt install fd-find   # or: pacman -S fd" ;;
-    linux:cc)         echo "    apt install build-essential" ;;
-    linux:make)       echo "    apt install build-essential" ;;
+    arch:cc|arch:make)    echo "    sudo pacman -S base-devel" ;;
+    arch:tree-sitter)    echo "    sudo pacman -S tree-sitter-cli" ;;
+    arch:nvim)           echo "    sudo pacman -S neovim" ;;
+    arch:java)           echo "    sudo pacman -S jdk-openjdk" ;;
+    arch:*)              echo "    sudo pacman -S $1" ;;
+    *:tree-sitter)       echo "    brew install tree-sitter-cli   # or: cargo install tree-sitter-cli (NOT npm; needs 0.26.1+)" ;;
+    mac:*)               echo "    brew install $1" ;;
+    linux:rg)            echo "    apt install ripgrep   # or: pacman -S ripgrep" ;;
+    linux:fd)            echo "    apt install fd-find   # or: pacman -S fd" ;;
+    linux:cc|linux:make) echo "    apt install build-essential" ;;
     linux:npm|linux:node) echo "    apt install nodejs npm" ;;
-    linux:java)       echo "    apt install default-jdk" ;;
-    linux:*)          echo "    apt install $1        # or your distro's equivalent" ;;
-    wsl:*)            echo "    (WSL) apt install $1" ;;
-    *)                echo "    install $1 using your package manager" ;;
+    linux:java)          echo "    apt install default-jdk" ;;
+    linux:*)             echo "    apt install $1        # or your distro's equivalent" ;;
+    wsl:*)               echo "    (WSL) apt install $1" ;;
+    *)                   echo "    install $1 using your package manager" ;;
   esac
 }
 
@@ -43,18 +54,18 @@ need() {
   fi
 }
 
-need nvim  required
-need git   required
-need tmux  required
-need rg    recommended   # telescope live_grep
-need fd    recommended   # telescope find_files
-need make  recommended   # telescope-fzf-native build
-need cc    recommended   # telescope-fzf-native + treesitter parser compile
-need tree-sitter recommended   # nvim-treesitter (main) parser install/compile
-need npm   recommended   # markdown-preview build
-need unzip recommended   # mason
-need curl  recommended   # mason
-need java  recommended   # jdtls LSP server
+need nvim          required
+need git           required
+need tmux          required
+need rg           recommended   # telescope live_grep
+need fd           recommended   # telescope find_files
+need make         recommended   # telescope-fzf-native build
+need cc           recommended   # telescope-fzf-native + treesitter parser compile
+need tree-sitter  recommended   # nvim-treesitter (main) parser install/compile
+need npm          recommended   # markdown-preview build
+need unzip        recommended   # mason
+need curl         recommended   # mason
+need java         recommended   # jdtls LSP server
 
 if [ ${#MISSING_REQUIRED[@]} -gt 0 ]; then
   echo "ERROR: missing required dependencies:"
