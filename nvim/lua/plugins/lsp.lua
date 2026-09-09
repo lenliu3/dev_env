@@ -40,6 +40,7 @@ return {
           "lua_ls",
           "ts_ls",
           "marksman",
+          "qmlls",
         },
         automatic_installation = true,
         handlers = {
