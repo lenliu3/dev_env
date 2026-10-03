@@ -28,8 +28,7 @@ diff` shows your actual config drift.
 - `ripgrep` (`rg`) — telescope live-grep
 - `fd` — faster telescope file finder
 - `make` + C compiler — `telescope-fzf-native` builds a C extension
-- `npm` — mason installs `ts_ls` (typescript-language-server) via npm
-- `glow` — markdown preview in a float (`:Glow`, `<leader>mp`) via `glow.nvim`
+- `npm` — `markdown-preview.nvim` post-install
 - `unzip`, `curl` — mason fetches LSP servers
 - JDK 17+ — `jdtls` Java LSP
 - A [Nerd Font](https://www.nerdfonts.com/font-downloads) for `nvim-web-devicons` glyphs

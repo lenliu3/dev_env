@@ -34,7 +34,6 @@ hint() {
     linux:cc|linux:make) echo "    apt install build-essential" ;;
     linux:npm|linux:node) echo "    apt install nodejs npm" ;;
     linux:java)          echo "    apt install default-jdk" ;;
-    linux:glow|wsl:glow) echo "    brew install glow   # or: apt/dnf install glow (Debian 13+, Ubuntu 25.04+, Fedora)" ;;
     linux:*)             echo "    apt install $1        # or your distro's equivalent" ;;
     wsl:*)               echo "    (WSL) apt install $1" ;;
     *)                   echo "    install $1 using your package manager" ;;
@@ -63,8 +62,7 @@ need fd           recommended   # telescope find_files
 need make         recommended   # telescope-fzf-native build
 need cc           recommended   # telescope-fzf-native + treesitter parser compile
 need tree-sitter  recommended   # nvim-treesitter (main) parser install/compile
-need npm          recommended   # mason: ts_ls (typescript-language-server)
-need glow         recommended   # glow.nvim markdown preview
+need npm          recommended   # markdown-preview build
 need unzip        recommended   # mason
 need curl         recommended   # mason
 need java         recommended   # jdtls LSP server
