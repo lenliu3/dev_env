@@ -119,6 +119,13 @@ fi
 # Install plugins. TPM reads its path from the tmux server env, so start a
 # throwaway detached session, run the installer in it, then kill it.
 if command -v tmux >/dev/null 2>&1; then
+  # If this starts a fresh server, tmux-continuum would auto-restore the saved
+  # environment into it. Its halt file suppresses that.
+  HALT="$HOME/tmux_no_auto_restore"
+  if [ ! -e "$HALT" ]; then
+    touch "$HALT"
+    trap 'rm -f "$HALT"' EXIT
+  fi
   SESSION="__dev_env_install_$$"
   tmux new-session -d -s "$SESSION"
   tmux send-keys -t "$SESSION" "$TPM_DIR/bin/install_plugins && tmux kill-session -t $SESSION" C-m
