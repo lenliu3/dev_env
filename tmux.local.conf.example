@@ -1,0 +1,6 @@
+# Machine-local tmux settings. Copy to tmux.local.conf (gitignored) in this
+# directory; tmux.conf sources it if it exists.
+
+# Sessions the resurrect save hook leaves out, space-separated: ones another
+# process recreates itself (see README).
+# set -g @resurrect-skip-sessions 'name1 name2'

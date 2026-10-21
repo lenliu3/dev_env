@@ -4,3 +4,6 @@ nvim/lua/plugins-work/
 # Backups left by install.sh
 *.bak
 *.bak-*
+
+# Machine-local tmux settings, sourced by tmux.conf (template: tmux.local.conf.example)
+tmux.local.conf

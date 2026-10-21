@@ -15,12 +15,18 @@
 #   programs don't chdir themselves, so their own cwd is where they launched.
 # - A pane with nothing running gets no command. resurrect finds a pane's
 #   program by parent-pid prefix and can pick up another pane's.
+# - Sessions named in @resurrect-skip-sessions are left out, for sessions some
+#   other process recreates itself (say a cron job, which can be what starts
+#   tmux after a reboot). Restoring them too would swap its pane for a bare
+#   shell (a from-scratch restore overwrites the only pane) and leave shells it
+#   then adds its panes next to, as second windows.
 
 set -u
 
 save_file=${1:?usage: $0 <resurrect save file>}
 claude_dir=${CLAUDE_CONFIG_DIR:-$HOME/.claude}
 uuid_re='^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+skip_sessions=$(tmux show-option -gqv @resurrect-skip-sessions)
 
 # Read a string field from the registry's flat single-line JSON ($2).
 json_field() {
@@ -110,12 +116,25 @@ tmux list-panes -a -F "#{session_name}$t#{window_index}$t#{pane_index}$t#{pane_p
 # Pane lines have 11 fields; dir ($8) and command ($11) carry a ':' guard. A
 # line whose $8 lacks it was shifted by an empty pane title and is left alone,
 # as is a pane that closed since resurrect listed it.
-awk -F'\t' -v OFS='\t' '
+awk -F'\t' -v OFS='\t' -v skip_list="$skip_sessions" '
+  BEGIN { n = split(skip_list, names, " "); for (i = 1; i <= n; i++) skip[names[i]] = 1 }
   FILENAME == ARGV[1] {
     k = $1 SUBSEP $2 SUBSEP $3; sid[k] = $4; dir[k] = $5; idle[k] = $6
     if ($4 != "") live[$4] = 1
     next
   }
+  # Untyped lines continue a multi-line pane command and go with their pane line.
+  $1 == "pane" || $1 == "window" || $1 == "grouped_session" {
+    drop = ($2 in skip) || ($1 == "grouped_session" && ($3 in skip))
+  }
+  $1 == "state" {
+    drop = 0
+    # Restore reads this line with a tab-IFS `read`, which collapses an empty
+    # field, so a skipped client session gives way to the last session.
+    if ($3 in skip) $3 = ""
+    if ($2 in skip) { $2 = $3; $3 = "" }
+  }
+  drop { next }
   $1 == "pane" && NF == 11 && $8 ~ /^:/ && (($2 SUBSEP $3 SUBSEP $6) in idle) {
     k = $2 SUBSEP $3 SUBSEP $6
     if (sid[k] != "") {
